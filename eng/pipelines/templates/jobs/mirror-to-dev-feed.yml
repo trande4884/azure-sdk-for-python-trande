@@ -43,14 +43,11 @@ jobs:
         inputs:
           versionSpec: ${{ parameters.PythonVersionOverride }}
 
-      - task: PythonScript@0
+      - pwsh: |
+          $configurations = '${{ convertToJson(parameters.PackageSpecifiers) }}' -replace '\\', '/' 
+          python scripts/devops_tasks/download_targeted_packages.py '$configurations' --dest-dir='$(Build.ArtifactStagingDirectory)'
         displayName: 'Download Targeted Packages'
-        inputs:
-          scriptPath: 'scripts/devops_tasks/download_targeted_packages.py'
-          arguments: >-
-            '${{ convertToJson(parameters.PackageSpecifiers) }}'
-            --dest-dir="$(Build.ArtifactStagingDirectory)"
-          
+
       - template: /eng/pipelines/templates/steps/auth-dev-feed.yml
         parameters:
           DevFeedName: ${{ parameters.DevFeed }}
