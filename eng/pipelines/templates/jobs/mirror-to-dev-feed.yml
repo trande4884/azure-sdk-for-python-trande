@@ -41,7 +41,7 @@ jobs:
     steps:
       - task: UsePythonVersion@0
         inputs:
-          versionSpec: $(PythonVersionOverride)
+          versionSpec: ${{ parameters.PythonVersionOverride }}
 
       - task: PythonScript@0
         displayName: 'Download Targeted Packages'
