@@ -47,9 +47,9 @@ jobs:
         displayName: 'Download Targeted Packages'
         inputs:
           scriptPath: 'scripts/devops_tasks/download_targeted_packages.py'
-        arguments: >-
-          '${{ convertToJson(parameters.DockerDeployments) }}'
-          --dest-dir="$(Build.ArtifactStagingDirectory)"
+          arguments: >-
+            '${{ convertToJson(parameters.DockerDeployments) }}'
+            --dest-dir="$(Build.ArtifactStagingDirectory)"
           
       - template: /eng/pipelines/templates/steps/auth-dev-feed.yml
         parameters:
