@@ -48,7 +48,7 @@ jobs:
         inputs:
           scriptPath: 'scripts/devops_tasks/download_targeted_packages.py'
           arguments: >-
-            '${{ convertToJson(parameters.DockerDeployments) }}'
+            '${{ convertToJson(parameters.PackageSpecifiers) }}'
             --dest-dir="$(Build.ArtifactStagingDirectory)"
           
       - template: /eng/pipelines/templates/steps/auth-dev-feed.yml
