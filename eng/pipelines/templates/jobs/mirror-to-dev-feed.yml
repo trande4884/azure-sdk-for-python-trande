@@ -45,7 +45,7 @@ jobs:
 
       - pwsh: |
           $configurations = '${{ convertToJson(parameters.PackageSpecifiers) }}' -replace '\\', '/' 
-          python scripts/devops_tasks/download_targeted_packages.py '$configurations' --dest-dir='$(Build.ArtifactStagingDirectory)'
+          python scripts/devops_tasks/download_targeted_packages.py $configurations --dest-dir='$(Build.ArtifactStagingDirectory)'
         displayName: 'Download Targeted Packages'
 
       - template: /eng/pipelines/templates/steps/auth-dev-feed.yml
@@ -53,7 +53,7 @@ jobs:
           DevFeedName: ${{ parameters.DevFeed }}
 
       - pwsh: |
-          $results = Get-ChildItem -Path -Force $(Build.ArtifactStagingDirectory)
+          $results = Get-ChildItem -Force -Path $(Build.ArtifactStagingDirectory)
           foreach($file in $results){
             Write-Host $file.Name
           }
