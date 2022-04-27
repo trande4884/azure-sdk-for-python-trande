@@ -1,0 +1,64 @@
+parameters:
+  - name: PackageSpecifiers
+    type: object
+    default: []
+  - name: PythonVersionOverride
+    type: string
+    default: "3.9"
+  - name: DevFeed
+    type: string
+    default: "public/azure-sdk-for-python"
+
+# this package takes a yaml list of target packages. This list should look something like
+#
+# - azure-storage-blob==12.2.0
+# - astroid==2.11.3
+#
+# other specifiers that aren't "==" are supported, but user beware, you won't get a deterministic result then!
+
+jobs:
+  - job: Mirror_From_PyPI
+    
+    strategy:
+      matrix:
+        Windows:
+          Pool: 'azsdk-pool-mms-ubuntu-2004-general'
+          vmImage: 'MMSUbuntu20.04'
+        Linux:
+          Pool: 'azsdk-pool-mms-win-2019-general'
+          vmImage: 'MMS2019'
+        Mac:
+          Pool: 'Azure Pipelines'
+          Image: 'macOS-10.15'
+
+    pool:
+      name: $(Pool)
+      vmImage: $(Image)
+
+    variables:
+      - template: /eng/pipelines/templates/variables/globals.yml
+
+    steps:
+      - task: UsePythonVersion@0
+        inputs:
+          versionSpec: $(PythonVersionOverride)
+
+      - task: PythonScript@0
+        displayName: 'Download Targeted Packages'
+        inputs:
+          scriptPath: 'scripts/devops_tasks/download_targeted_packages.py'
+        arguments: >-
+          '${{ convertToJson(parameters.DockerDeployments) }}'
+          --dest-dir="$(Build.ArtifactStagingDirectory)"
+          
+      - template: /eng/pipelines/templates/steps/auth-dev-feed.yml
+        parameters:
+          DevFeedName: ${{ parameters.DevFeed }}
+
+      - pwsh: |
+          $results = Get-ChildItem -Path -Force $(Build.ArtifactStagingDirectory)
+          foreach($file in $results){
+            Write-Host $file.Name
+          }
+        displayName: 'Publish Packages to Dev Feed'
+
